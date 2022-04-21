@@ -3,6 +3,8 @@
 # @Time  : 2022/1/20 
 # @Author: Hans_q
 # @Email : hans_q@bupt.edu.cn
+import argparse
+
 import requests
 import json
 import datetime
@@ -34,6 +36,8 @@ def login(username, password):
     data_dict['execution'] = execution
 
     response2 = session.post(url=url, data=data_dict, headers= header)
+    if response2.status_code != 200:
+        raise Exception(f'登录失败！http状态码:{response2.status_code}, 请检查用户名和密码')
 
     return session
 
@@ -137,10 +141,24 @@ def load_config():
 
         return username, password
 
+def get_params():
+    '''
+    获取用户输入的 用户名和密码
+    '''
+    #获取对象
+    parser = argparse.ArgumentParser(description='get_input_params')
+    #设置参数
+    parser.add_argument('-u','--username', help='学号')
+    parser.add_argument('-p','--password', help='密码')
+    #获取参数
+    args = parser.parse_args()
+    return args.username, args.password
+
 if __name__ == "__main__":
 
     # username, password = load_config()
-    session = login('2019140351', '12051650')
+    username, password = get_params()   # 从github secrets里获取用户名和密码
+    session = login(username, password)
     session2, old_info = get_old_info(session)
     result = submit(session2, old_info)
 
