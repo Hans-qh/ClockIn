@@ -11,7 +11,8 @@ import datetime
 from lxml import etree
 
 header={
-    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0'
+    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0',
+    'Connection': 'close'
 }
 
 def login(username, password):
@@ -29,13 +30,13 @@ def login(username, password):
                  "_eventId" : "submit"}
 
     session = requests.session()
-    response1 = session.get(url=url,headers=header)
+    response1 = session.get(url=url,headers=header,verify=False)
 
     html = etree.HTML(response1.text)
     execution = html.xpath('//*[@id="loginForm"]/div[5]/input[2]/@value')[0]
     data_dict['execution'] = execution
 
-    response2 = session.post(url=url, data=data_dict, headers= header)
+    response2 = session.post(url=url, data=data_dict, headers= header,verify=False)
     if response2.status_code != 200:
         raise Exception(f'登录失败！http状态码:{response2.status_code}, 请检查用户名和密码')
 
@@ -48,7 +49,7 @@ def get_old_info(session):
     :return:
     '''
     url = "https://app.bupt.edu.cn/ncov/wap/default/index?from=singlemessage&isappinstalled=0"
-    resp = session.get(url,headers=header)
+    resp = session.get(url,headers=header,verify=False)
     content = resp.text # 是html字符串（网页源码）
 
     str1 = content.split("oldInfo: ")[-1]
@@ -126,7 +127,7 @@ def submit(session, oldinfo):
     today_str = datetime.datetime.now().strftime("%Y%m%d")
     oldinfo["date"] = today_str
 
-    response = session.post(url=url, data=oldinfo, headers=header)
+    response = session.post(url=url, data=oldinfo, headers=header,verify=False)
     return json.loads(response.text)
 
 def load_config():
