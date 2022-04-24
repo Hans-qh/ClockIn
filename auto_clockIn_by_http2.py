@@ -30,15 +30,15 @@ def login(username, password):
                  "_eventId" : "submit"}
 
     session = requests.session()
-    response1 = session.get(url=url,headers=header,verify=False)
+    response1 = session.get(url=url,headers=header)
 
     html = etree.HTML(response1.text)
     execution = html.xpath('//*[@id="loginForm"]/div[5]/input[2]/@value')[0]
     data_dict['execution'] = execution
 
-    response2 = session.post(url=url, data=data_dict, headers= header,verify=False)
+    response2 = session.post(url=url, data=data_dict, headers= header)
     if response2.status_code != 200:
-        raise Exception(f'登录失败！http状态码:{response2.status_code}, 请检查用户名和密码')
+        raise Exception('登录失败！http状态码:{}, 请检查用户名和密码'.format(response2.status_code))
 
     return session
 
@@ -49,7 +49,7 @@ def get_old_info(session):
     :return:
     '''
     url = "https://app.bupt.edu.cn/ncov/wap/default/index?from=singlemessage&isappinstalled=0"
-    resp = session.get(url,headers=header,verify=False)
+    resp = session.get(url,headers=header)
     content = resp.text # 是html字符串（网页源码）
 
     str1 = content.split("oldInfo: ")[-1]
@@ -127,7 +127,7 @@ def submit(session, oldinfo):
     today_str = datetime.datetime.now().strftime("%Y%m%d")
     oldinfo["date"] = today_str
 
-    response = session.post(url=url, data=oldinfo, headers=header,verify=False)
+    response = session.post(url=url, data=oldinfo, headers=header)
     return json.loads(response.text)
 
 def load_config():
@@ -167,4 +167,8 @@ if __name__ == "__main__":
         print("今日填报成功!")
     else:
         print("提示信息：", result['m'])
+
+    datetime_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print('time:', datetime_str)
+    print()
 
